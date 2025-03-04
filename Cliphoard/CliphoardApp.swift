@@ -6,15 +6,13 @@
 //
 
 import SwiftUI
+import CoreData
 
 @main
 struct CliphoardApp: App {
-    let persistenceController = PersistenceController.shared
-
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            // Empty Scene: No main window (menu bar app only)
+            Settings {}  // Required to conform to `App` protocol
         }
-    }
 }
