@@ -18,7 +18,7 @@ class StatusBarController {
         statusItem = statusBar.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "clipboard", accessibilityDescription: "Clipboard")
+            button.image = NSImage(systemSymbolName: "list.bullet.clipboard.fill", accessibilityDescription: "Clipboard")
             button.action = #selector(togglePopover)
             button.target = self
         }

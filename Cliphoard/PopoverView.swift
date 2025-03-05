@@ -34,7 +34,7 @@ struct PopoverView: View {
                         NSPasteboard.general.clearContents()
                         NSPasteboard.general.setString(entry.wrappedHiddenText, forType: .string)
                     }) {
-                        Image(systemName: "doc.on.clipboard")
+                        Image(systemName: "arrow.right.page.on.clipboard")
                     }
                     .buttonStyle(BorderedButtonStyle())
                 }
