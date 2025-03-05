@@ -12,7 +12,6 @@ import CoreData
 struct CliphoardApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     var body: some Scene {
-            // Empty Scene: No main window (menu bar app only)
-            Settings {}  // Required to conform to `App` protocol
+            Settings {} 
         }
 }
