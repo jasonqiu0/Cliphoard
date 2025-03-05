@@ -19,11 +19,15 @@ struct PopoverView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text("")
-                .padding(.top, 10)
+                .padding(.top, 5)
+            
             ForEach(entries, id: \.self) {entry in
                 HStack {
                     Text(entry.wrappedTitle)
                         .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(selectedEntry == entry ? Color.blue.opacity(0.7) : Color.clear)
+                        .cornerRadius(5)
                         .onTapGesture {
                             selectedEntry = entry
                         }
@@ -52,10 +56,13 @@ struct PopoverView: View {
                 HStack {
                     Button("Save") { saveEntry() }
                         .buttonStyle(BorderedButtonStyle())
+                        .disabled(newHiddenText.isEmpty)
                     
                     Button("Remove") { removeEntry() }
                         .buttonStyle(BorderedButtonStyle())
                         .disabled(selectedEntry == nil)
+                    Button("Clear All") { removeAllEntries() }
+                        .buttonStyle(BorderedButtonStyle())
                     
                     Button("Quit") { NSApplication.shared.terminate(nil) }
                         .buttonStyle(BorderedButtonStyle())
@@ -66,6 +73,7 @@ struct PopoverView: View {
             
         }
     }
+    
     private func saveEntry() {
         let newEntry = ClipboardEntry(context: viewContext)
         newEntry.id = UUID()
@@ -82,6 +90,12 @@ struct PopoverView: View {
             try? viewContext.save()
             selectedEntry = nil
         }
+    }
+    private func removeAllEntries() {
+        for entry in entries {
+            viewContext.delete(entry)
+        }
+        try? viewContext.save()
     }
 }
 
