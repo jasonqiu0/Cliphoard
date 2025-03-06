@@ -1,3 +1,10 @@
+//
+//  PopoverView.swift
+//  Cliphoard
+//
+//  Created by Jason Qiu on 3/4/25.
+//
+
 import SwiftUI
 
 struct PopoverView: View {
@@ -9,6 +16,10 @@ struct PopoverView: View {
     @State private var newHiddenText = ""
     @State private var selectedEntry: ClipboardEntry?
 
+    private var enumeratedEntries: [(Int, ClipboardEntry)] {
+        return Array(entries.enumerated())
+    }
+
     var body: some View {
         VStack(alignment: .leading) {
             Text("")
@@ -16,27 +27,11 @@ struct PopoverView: View {
 
             ScrollView {
                 VStack {
-                    ForEach(Array(entries.enumerated()), id: \.element) { index, entry in
-                        HStack {
-                            Text("⌘\(index): \(entry.wrappedTitle)")
-                                .font(.headline)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(selectedEntry == entry ? Color.blue.opacity(0.7) : Color.clear)
-                                .cornerRadius(5)
-                                .onTapGesture {
-                                    selectedEntry = entry
-                                }
-                            
-                            Spacer()
-                            Button(action: {
-                                copyToClipboard(entry.wrappedHiddenText)
-                            }) {
-                                Image(systemName: "arrow.right.page.on.clipboard")
-                            }
-                            .buttonStyle(BorderedButtonStyle())
-                            .keyboardShortcut(KeyEquivalent(Character("\(index)")), modifiers: .command)
-                        }
-                        .padding(.horizontal)
+                    ForEach(enumeratedEntries, id: \.1) { index, entry in
+                        let keyEquivalent: KeyEquivalent? = index < 10 ? KeyEquivalent("\(index)".first!) : nil
+
+                        EntryRow(entry: entry, index: index, selectedEntry: $selectedEntry)
+                            .overlay(ShortcutButton(entry: entry, key: keyEquivalent))
                     }
                 }
             }
@@ -69,7 +64,9 @@ struct PopoverView: View {
             }
             .padding(20)
         }
+
     }
+
 
 
     private func copyToClipboard(_ text: String) {
@@ -105,6 +102,63 @@ struct PopoverView: View {
     }
 }
 
+
+struct EntryRow: View {
+    var entry: ClipboardEntry
+    var index: Int
+    @Binding var selectedEntry: ClipboardEntry?
+
+    var body: some View {
+        HStack {
+
+            Text(entry.wrappedTitle)
+                .font(.system(size: 14))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(selectedEntry == entry ? Color.blue.opacity(0.7) : Color.clear)
+                .cornerRadius(5)
+                .onTapGesture {
+                    selectedEntry = entry
+                }
+
+            if index < 10 {
+                Text("⌘\(index)")
+                    .font(.system(size: 12))
+                    .foregroundColor(Color.white.opacity(0.5))
+            }
+
+            Button(action: {
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(entry.wrappedHiddenText, forType: .string)
+            }) {
+                Image(systemName: "arrow.right.page.on.clipboard")
+            }
+            .buttonStyle(BorderedButtonStyle())
+        }
+        .padding(.horizontal)
+    }
+}
+
+struct ShortcutButton: View {
+    var entry: ClipboardEntry
+    var key: KeyEquivalent?
+
+    var body: some View {
+        Group {
+            if let key = key {
+                Button(action: {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(entry.wrappedHiddenText, forType: .string)
+                }) {
+                    Text("")
+                }
+                .keyboardShortcut(key, modifiers: .command)
+                .hidden()
+            }
+        }
+    }
+}
+
 #Preview {
     PopoverView()
 }
+
