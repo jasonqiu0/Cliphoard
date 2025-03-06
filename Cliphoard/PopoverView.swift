@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PopoverView: View {
     @Environment(\.managedObjectContext) var viewContext
-    @FetchRequest(sortDescriptors: [NSSortDescriptor(keyPath: \ClipboardEntry.id, ascending: false)])
+    @FetchRequest(sortDescriptors: [NSSortDescriptor(keyPath: \ClipboardEntry.dateAdded, ascending: true)])
     var entries: FetchedResults<ClipboardEntry>
 
     @State private var newTitle = ""
@@ -79,6 +79,7 @@ struct PopoverView: View {
         newEntry.id = UUID()
         newEntry.title = newTitle
         newEntry.hiddenText = newHiddenText
+        newEntry.dateAdded = Date()
 
         try? viewContext.save()
         newTitle = ""
