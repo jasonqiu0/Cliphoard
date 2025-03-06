@@ -35,7 +35,6 @@ struct PopoverView: View {
                     }
                 }
             }
-            .frame(height: min(CGFloat(entries.count) * 30, 200))
 
             Divider()
 
