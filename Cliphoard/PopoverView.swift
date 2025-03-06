@@ -18,7 +18,7 @@ struct PopoverView: View {
                 VStack {
                     ForEach(Array(entries.enumerated()), id: \.element) { index, entry in
                         HStack {
-                            Text("\(index): \(entry.wrappedTitle)")
+                            Text("⌘\(index): \(entry.wrappedTitle)")
                                 .font(.headline)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(selectedEntry == entry ? Color.blue.opacity(0.7) : Color.clear)
@@ -28,7 +28,6 @@ struct PopoverView: View {
                                 }
                             
                             Spacer()
-
                             Button(action: {
                                 copyToClipboard(entry.wrappedHiddenText)
                             }) {
