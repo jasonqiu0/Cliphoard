@@ -41,14 +41,19 @@ struct PopoverView: View {
             VStack {
                 TextField("Title (shows Hidden Text if empty)", text: $newTitle)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-
+                
                 TextField("Hidden Text", text: $newHiddenText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-
+                    .onSubmit {
+                        if !newHiddenText.isEmpty {
+                            saveEntry() }
+                    }
+                
                 HStack {
                     Button("Save") { saveEntry() }
                         .buttonStyle(BorderedButtonStyle())
                         .disabled(newHiddenText.isEmpty)
+                        .keyboardShortcut(.return)
 
                     Button("Remove") { removeEntry() }
                         .buttonStyle(BorderedButtonStyle())
@@ -59,6 +64,12 @@ struct PopoverView: View {
 
                     Button("Quit") { NSApplication.shared.terminate(nil) }
                         .buttonStyle(BorderedButtonStyle())
+                }
+                HStack{
+                    Button("Move ↑") { () }
+                        .disabled(selectedEntry == nil)
+                    Button("Move ↓") { () }
+                        .disabled(selectedEntry == nil)
                 }
             }
             .padding(20)
