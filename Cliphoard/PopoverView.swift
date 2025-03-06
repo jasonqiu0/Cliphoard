@@ -1,10 +1,3 @@
-//
-//  PopoverView.swift
-//  Cliphoard
-//
-//  Created by Jason Qiu on 3/4/25.
-//
-
 import SwiftUI
 
 struct PopoverView: View {
@@ -15,69 +8,80 @@ struct PopoverView: View {
     @State private var newTitle = ""
     @State private var newHiddenText = ""
     @State private var selectedEntry: ClipboardEntry?
-    
+
     var body: some View {
         VStack(alignment: .leading) {
             Text("")
                 .padding(.top, 5)
-            
-            ForEach(entries, id: \.self) {entry in
-                HStack {
-                    Text(entry.wrappedTitle)
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(selectedEntry == entry ? Color.blue.opacity(0.7) : Color.clear)
-                        .cornerRadius(5)
-                        .onTapGesture {
-                            selectedEntry = entry
+
+            ScrollView {
+                VStack {
+                    ForEach(Array(entries.enumerated()), id: \.element) { index, entry in
+                        HStack {
+                            Text("\(index): \(entry.wrappedTitle)")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(selectedEntry == entry ? Color.blue.opacity(0.7) : Color.clear)
+                                .cornerRadius(5)
+                                .onTapGesture {
+                                    selectedEntry = entry
+                                }
+                            
+                            Spacer()
+
+                            Button(action: {
+                                copyToClipboard(entry.wrappedHiddenText)
+                            }) {
+                                Image(systemName: "arrow.right.page.on.clipboard")
+                            }
+                            .buttonStyle(BorderedButtonStyle())
+                            .keyboardShortcut(KeyEquivalent(Character("\(index)")), modifiers: .command)
                         }
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        NSPasteboard.general.clearContents()
-                        NSPasteboard.general.setString(entry.wrappedHiddenText, forType: .string)
-                    }) {
-                        Image(systemName: "arrow.right.page.on.clipboard")
+                        .padding(.horizontal)
                     }
-                    .buttonStyle(BorderedButtonStyle())
                 }
-                .padding(.horizontal)
             }
+            .frame(height: min(CGFloat(entries.count) * 30, 200))
+
             Divider()
-            
+
             VStack {
                 TextField("Title (shows Hidden Text if empty)", text: $newTitle)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
 
                 TextField("Hidden Text", text: $newHiddenText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                
+
                 HStack {
                     Button("Save") { saveEntry() }
                         .buttonStyle(BorderedButtonStyle())
                         .disabled(newHiddenText.isEmpty)
-                    
+
                     Button("Remove") { removeEntry() }
                         .buttonStyle(BorderedButtonStyle())
                         .disabled(selectedEntry == nil)
+
                     Button("Clear All") { removeAllEntries() }
                         .buttonStyle(BorderedButtonStyle())
-                    
+
                     Button("Quit") { NSApplication.shared.terminate(nil) }
                         .buttonStyle(BorderedButtonStyle())
                 }
-
             }
             .padding(20)
-            
         }
     }
-    
+
+
+    private func copyToClipboard(_ text: String) {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+    }
+
     private func saveEntry() {
         let newEntry = ClipboardEntry(context: viewContext)
         newEntry.id = UUID()
-        newEntry.title = newTitle
+        newEntry.title = newTitle.isEmpty ? newHiddenText : newTitle
         newEntry.hiddenText = newHiddenText
         newEntry.dateAdded = Date()
 
@@ -85,13 +89,15 @@ struct PopoverView: View {
         newTitle = ""
         newHiddenText = ""
     }
-    private func removeEntry () {
-        if let entryToRemvoe = selectedEntry {
-            viewContext.delete(entryToRemvoe)
+
+    private func removeEntry() {
+        if let entryToRemove = selectedEntry {
+            viewContext.delete(entryToRemove)
             try? viewContext.save()
             selectedEntry = nil
         }
     }
+
     private func removeAllEntries() {
         for entry in entries {
             viewContext.delete(entry)
