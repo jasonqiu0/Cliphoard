@@ -137,7 +137,6 @@ struct PopoverView: View {
     }
 }
 
-
 struct EntryRow: View {
     var entry: ClipboardEntry
     var index: Int
@@ -197,4 +196,3 @@ struct ShortcutButton: View {
 #Preview {
     PopoverView()
 }
-
