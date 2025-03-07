@@ -66,18 +66,15 @@ struct PopoverView: View {
                         .buttonStyle(BorderedButtonStyle())
                 }
                 HStack{
-                    Button("Move ↑") { () }
+                    Button("Move ↑") { moveEntryUp() }
                         .disabled(selectedEntry == nil)
-                    Button("Move ↓") { () }
+                    Button("Move ↓") { moveEntryDown() }
                         .disabled(selectedEntry == nil)
                 }
             }
             .padding(20)
         }
-
     }
-
-
 
     private func copyToClipboard(_ text: String) {
         NSPasteboard.general.clearContents()
@@ -110,6 +107,34 @@ struct PopoverView: View {
         }
         try? viewContext.save()
     }
+    
+    private func moveEntryUp() {
+        guard let selected = selectedEntry,
+              let currentIndex = entries.firstIndex(of: selected),
+              currentIndex > 0 else { return }
+        
+        let previousEntry = entries[currentIndex-1]
+        let tempDate = selected.dateAdded
+        selected.dateAdded = previousEntry.dateAdded
+        previousEntry.dateAdded = tempDate
+        
+        try? viewContext.save()
+
+    }
+    
+    private func moveEntryDown() {
+        guard let selected = selectedEntry,
+              let currentIndex = entries.firstIndex(of: selected),
+              currentIndex < entries.count-1 else { return }
+        
+        let nextEntry = entries[currentIndex+1]
+        let tempDate = selected.dateAdded
+        selected.dateAdded = nextEntry.dateAdded
+        nextEntry.dateAdded = tempDate
+        
+        try? viewContext.save()
+        
+    }
 }
 
 
@@ -140,7 +165,8 @@ struct EntryRow: View {
                 NSPasteboard.general.clearContents()
                 NSPasteboard.general.setString(entry.wrappedHiddenText, forType: .string)
             }) {
-                Image(systemName: "arrow.right.page.on.clipboard")
+                Image(systemName: "document.on.clipboard.fill")
+                    .frame(width: 20, height: 20)
             }
             .buttonStyle(BorderedButtonStyle())
         }
