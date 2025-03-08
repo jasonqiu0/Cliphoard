@@ -15,6 +15,8 @@ struct PopoverView: View {
     @State private var newTitle = ""
     @State private var newHiddenText = ""
     @State private var selectedEntry: ClipboardEntry?
+    @State private var isEditing = false
+    @State private var refreshID = UUID()
 
     private var enumeratedEntries: [(Int, ClipboardEntry)] {
         return Array(entries.enumerated())
@@ -35,6 +37,7 @@ struct PopoverView: View {
                     }
                 }
             }
+            .id(refreshID)
 
             Divider()
 
@@ -50,7 +53,7 @@ struct PopoverView: View {
                     }
                 
                 HStack {
-                    Button("Save") { saveEntry() }
+                    Button(isEditing ? "Save Changes" : "Save") { saveEntry() }
                         .buttonStyle(BorderedButtonStyle())
                         .disabled(newHiddenText.isEmpty)
                         .keyboardShortcut(.return)
@@ -68,12 +71,17 @@ struct PopoverView: View {
                 HStack{
                     Button("Move ↑") { moveEntryUp() }
                         .disabled(selectedEntry == nil)
+                    
                     Button("Move ↓") { moveEntryDown() }
+                        .disabled(selectedEntry == nil)
+                    
+                    Button("Edit") { editMode() }
                         .disabled(selectedEntry == nil)
                 }
             }
             .padding(20)
         }
+        .frame(width: 360)
     }
 
     private func copyToClipboard(_ text: String) {
@@ -82,15 +90,25 @@ struct PopoverView: View {
     }
 
     private func saveEntry() {
-        let newEntry = ClipboardEntry(context: viewContext)
-        newEntry.id = UUID()
-        newEntry.title = newTitle.isEmpty ? newHiddenText : newTitle
-        newEntry.hiddenText = newHiddenText
-        newEntry.dateAdded = Date()
+        
+        if isEditing, let selected = selectedEntry {
+            selected.title = newTitle.isEmpty ? newHiddenText : newTitle
+            selected.hiddenText = newHiddenText
+            isEditing = false
+            
+        } else {
+            let newEntry = ClipboardEntry(context: viewContext)
+            newEntry.id = UUID()
+            newEntry.title = newTitle.isEmpty ? newHiddenText : newTitle
+            newEntry.hiddenText = newHiddenText
+            newEntry.dateAdded = Date()
+        }
+        
 
         try? viewContext.save()
         newTitle = ""
         newHiddenText = ""
+        refreshID = UUID()
     }
 
     private func removeEntry() {
@@ -134,6 +152,14 @@ struct PopoverView: View {
         
         try? viewContext.save()
         
+    }
+    
+    private func editMode() {
+        guard let selected = selectedEntry else { return }
+        newTitle = selected.wrappedTitle
+        newHiddenText = selected.wrappedHiddenText
+        isEditing = true
+                
     }
 }
 
