@@ -61,22 +61,28 @@ struct PopoverView: View {
                     Button("Remove") { removeEntry() }
                         .buttonStyle(BorderedButtonStyle())
                         .disabled(selectedEntry == nil)
+                        .disabled(isEditing == true)
 
                     Button("Clear All") { removeAllEntries() }
                         .buttonStyle(BorderedButtonStyle())
+                        .disabled(isEditing == true)
 
                     Button("Quit") { NSApplication.shared.terminate(nil) }
                         .buttonStyle(BorderedButtonStyle())
+                        .disabled(isEditing == true)
                 }
                 HStack{
                     Button("Move ↑") { moveEntryUp() }
                         .disabled(selectedEntry == nil)
+                        .disabled(isEditing == true)
                     
                     Button("Move ↓") { moveEntryDown() }
                         .disabled(selectedEntry == nil)
+                        .disabled(isEditing == true)
                     
                     Button("Edit") { editMode() }
                         .disabled(selectedEntry == nil)
+                        .disabled(isEditing == true)
                 }
             }
             .padding(20)
